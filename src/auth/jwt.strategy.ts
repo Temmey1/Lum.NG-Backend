@@ -9,7 +9,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: cfg.get<string>('JWT_SECRET', 'lumng_secret_2025'),
+      secretOrKey: cfg.getOrThrow<string>('JWT_SECRET'),
     });
   }
   async validate(payload: any) { return { userId: payload.sub, role: payload.role, username: payload.username }; }
