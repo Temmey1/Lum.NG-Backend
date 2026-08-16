@@ -1,8 +1,12 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { PrismaClient } = require('@prisma/client');
+import 'dotenv/config';
+import { Prisma, PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
 import * as bcrypt from 'bcryptjs';
 
-const prisma = new PrismaClient();
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 const DEFAULT_PRODUCTS = [
   { name:'Royal Ankara', category:'ankara', description:'Vibrant wax-print Ankara with bold geometric patterns. Perfect for traditional and contemporary wear.', price:4500, unit:'per yard', minOrder:1, bulkPrice:3800, bulkMin:10, badge:'Bestseller', inStock:true, featured:true, tags:['traditional','colorful','wax print'], pattern:'linear-gradient(145deg,#8B1A1A,#D4380D,#FA8C16,#1D6B1D,#003A8C)' },
@@ -43,7 +47,7 @@ async function main() {
   }
 
   for (const [key, value] of Object.entries(DEFAULT_SETTINGS)) {
-    await prisma.setting.upsert({ where: { key }, update: {}, create: { key, value } });
+    await prisma.setting.upsert({ where: { key }, update: {}, create: { key, value: value as Prisma.InputJsonValue } });
   }
   console.log('✅ Settings seeded\n✨ Done!');
 }
