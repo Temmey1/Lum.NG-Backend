@@ -1,0 +1,125 @@
+// ===== LUMNG — Prisma Schema =====
+// Database: PostgreSQL (Supabase / Neon / Railway / local)
+// Run: npx prisma migrate dev --name init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Products ──────────────────────────────────────────────
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  category    String
+  description String   @default("")
+  price       Float
+  unit        String   @default("per yard")
+  minOrder    Int      @default(1)
+  bulkPrice   Float?
+  bulkMin     Int?
+  badge       String?
+  pattern     String   @default("linear-gradient(135deg,#1a1a1a,#333)")
+  imageUrl    String?
+  inStock     Boolean  @default(true)
+  featured    Boolean  @default(false)
+  tags        String[] @default([])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orderItems  OrderItem[]
+
+  @@map("products")
+}
+
+// ─── Orders ────────────────────────────────────────────────
+model Order {
+  ref         String      @id
+  // Customer details (denormalised — no account required)
+  custName    String
+  custEmail   String
+  custPhone   String
+  custAddress String?
+  custState   String?
+  custLandmark String?
+  pickupDate  String?
+
+  delivery    DeliveryMode @default(DELIVERY)
+  subtotal    Float
+  deliveryFee Float        @default(0)
+  total       Float
+  status      OrderStatus  @default(PENDING)
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  items       OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   String
+  productId Int
+  qty       Int
+  unitPrice Float   // price at time of order
+
+  order     Order   @relation(fields: [orderId], references: [ref], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@map("order_items")
+}
+
+enum DeliveryMode {
+  DELIVERY
+  PICKUP
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  FULFILLED
+  CANCELLED
+}
+
+// ─── Admin credentials ─────────────────────────────────────
+model Admin {
+  id           Int    @id @default(autoincrement())
+  username     String @unique
+  passwordHash String
+
+  @@map("admins")
+}
+
+// ─── Site Settings ─────────────────────────────────────────
+// Stored as a single key-value JSON config row
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+
+  @@map("settings")
+}
+
+// ─── Abandoned Cart Recovery ────────────────────────────────
+model AbandonedCart {
+  id            Int      @id @default(autoincrement())
+  sessionId     String   @unique  // browser-generated UUID stored in localStorage
+  email         String?           // captured once customer starts checkout
+  name          String?
+  cartSnapshot  Json              // JSON array of { id, qty, name, price, pattern, unit }
+  cartTotal     Float
+  recoveryToken String   @unique  // unique token for the cart restore link
+  reminderSentAt  DateTime?       // when the 1-hour reminder was sent
+  followupSentAt  DateTime?       // when the 24-hour follow-up was sent
+  recovered     Boolean  @default(false)   // true once an order is placed
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("abandoned_carts")
+}
