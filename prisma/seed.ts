@@ -4,7 +4,35 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 import * as bcrypt from 'bcryptjs';
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+function normalizeDbUrlForPool(rawUrl: string): {
+  url: string;
+  ssl: boolean | { rejectUnauthorized: false } | undefined;
+} {
+  const hasSslModeParam = /[?&]sslmode=(require|verify-ca|verify-full|prefer)/i.test(rawUrl);
+  const isManagedHost = /\.(supabase\.co|supabase\.com|neon\.tech|onrender\.com|aws\.amazonaws\.com|railway\.app)[\/?:]/.test(rawUrl);
+  const needSsl = hasSslModeParam || isManagedHost;
+  let clean = rawUrl;
+  if (hasSslModeParam) {
+    clean = clean
+      .replace(/([?&])sslmode=[^&]+/gi, '$1')
+      .replace(/([?&])uselibpqcompat=[^&]+/gi, '$1');
+    while (/[?&]&+/.test(clean)) clean = clean.replace(/[?&]&+/g, (m) => m[0]);
+    clean = clean.replace(/&+$/, '').replace(/\?$/, '');
+  }
+  return {
+    url: clean,
+    ssl: needSsl ? ({ rejectUnauthorized: false } as { rejectUnauthorized: false }) : undefined,
+  };
+}
+
+const rawUrl = process.env.DATABASE_URL || '';
+const { url: cleanUrl, ssl } = normalizeDbUrlForPool(rawUrl);
+
+const pool = new Pool({
+  connectionString: cleanUrl,
+  connectionTimeoutMillis: 15_000,
+  ssl,
+});
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
