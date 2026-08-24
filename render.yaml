@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: lumng-api
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: 'npm install && npm run build'
+    startCommand: 'npm run start:render'
+    healthCheckPath: /health
+    autoDeploy: yes
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: '10000'
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: APP_URL
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: FROM_EMAIL
+        value: 'onboarding@resend.dev'
+      - key: FROM_NAME
+        value: 'LUM NG Fabrics'
+      - key: CONTACT_PHONE
+        value: '+2349074112695'
