@@ -2,8 +2,9 @@ services:
   - type: web
     name: lumng-api
     runtime: node
-    region: oregon
+    region: frankfurt
     plan: free
+    rootDir: backend
     buildCommand: 'npm install && npm run build'
     startCommand: 'npm run start:render'
     healthCheckPath: /health
@@ -31,3 +32,7 @@ services:
         value: 'LUM NG Fabrics'
       - key: CONTACT_PHONE
         value: '+2349074112695'
+      - key: FIREBASE_STORAGE_BUCKET
+        sync: false
+      - key: FIREBASE_ADMIN_JSON_B64
+        sync: false
