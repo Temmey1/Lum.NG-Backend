@@ -101,9 +101,11 @@ Thumbs.db
 # ═══════════════════════════════════════════════════════════
 *.local
 .env.local
+.env.example
 .env.development.local
 .env.test.local
 .env.production.local
+.env.*
 
 
 *.seed.ts

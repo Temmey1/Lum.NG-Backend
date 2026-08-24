@@ -4,6 +4,17 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
+import { lookup } from 'dns';
+
+function forceIpv4Lookup(
+  hostname: string,
+  _options: any,
+  callback: (err: NodeJS.ErrnoException | null, address?: string, family?: number) => void,
+): void {
+  lookup(hostname, { family: 4 }, (err, address, family) => {
+    callback(err, address, family);
+  });
+}
 
 function normalizeDbUrlForPool(rawUrl: string): {
   url: string;
@@ -45,12 +56,15 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
 
     const { url: cleanUrl, ssl } = normalizeDbUrlForPool(rawUrl);
 
-    const pool = new Pool({
+    const poolConfig = {
       connectionString: cleanUrl,
       connectionTimeoutMillis: 15_000,
       idleTimeoutMillis: 30_000,
       ssl,
-    });
+      lookup: forceIpv4Lookup,
+    } as ConstructorParameters<typeof Pool>[0];
+
+    const pool = new Pool(poolConfig);
 
     pool.on('error', (err) => {
       const code = (err as any)?.code;
