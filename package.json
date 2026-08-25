@@ -43,6 +43,7 @@
     "bcryptjs": "^3.0.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
+    "dotenv": "^16.4.5",
     "multer": "^2.2.0",
     "openai": "^6.45.0",
     "passport": "^0.7.0",
