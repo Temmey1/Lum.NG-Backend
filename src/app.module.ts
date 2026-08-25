@@ -12,6 +12,7 @@ import { SettingsModule } from './settings/settings.module';
 import { EmailModule } from './email/email.module';
 import { CartRecoveryModule } from './cart-recovery/cart-recovery.module';
 import { AiModule } from './ai/ai.module';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AiModule } from './ai/ai.module';
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads',
     }),
+    StorageModule,         // global — R2StorageService (Cloudflare R2) injected everywhere
     PrismaModule,          // global — PrismaService injected everywhere
     EmailModule,           // global — EmailService injected everywhere
     AuthModule,
