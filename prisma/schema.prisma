@@ -38,6 +38,11 @@ model Product {
 // ─── Orders ────────────────────────────────────────────────
 model Order {
   ref         String      @id
+  // Opaque token for the public "view order" link shared with customers/
+  // vendor via WhatsApp/Instagram — deliberately NOT the same as `ref`
+  // (which is a short, guessable timestamp-based value used for display/
+  // admin lookup only) so the public link can't be trivially enumerated.
+  publicToken String      @unique @default(cuid())
   // Customer details (denormalised — no account required)
   custName    String
   custEmail   String

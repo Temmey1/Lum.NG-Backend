@@ -17,6 +17,14 @@ export class OrdersController {
   @UseGuards(JwtAuthGuard)
   stats() { return this.orders.stats(); }
 
+  // Public — powers the "view order" link shared with the customer/vendor
+  // via WhatsApp/Instagram after checkout. Two path segments (`track/:token`)
+  // so it never collides with the guarded single-segment `:ref` route below.
+  @Get('track/:token')
+  trackPublic(@Param('token') token: string) {
+    return this.orders.findByPublicToken(token);
+  }
+
   @Get(':ref')
   @UseGuards(JwtAuthGuard)
   findOne(@Param('ref') ref: string) { return this.orders.findOne(ref); }

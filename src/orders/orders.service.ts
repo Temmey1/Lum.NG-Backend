@@ -30,7 +30,7 @@ export class OrdersService {
     return this.db.order.findMany({
       where,
       include: {
-        items: { include: { product: { select: { name: true, pattern: true, unit: true } } } },
+        items: { include: { product: { select: { name: true, pattern: true, imageUrl: true, unit: true } } } },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -40,11 +40,44 @@ export class OrdersService {
     const order = await this.db.order.findUnique({
       where: { ref },
       include: {
-        items: { include: { product: { select: { name: true, pattern: true, unit: true } } } },
+        items: { include: { product: { select: { name: true, pattern: true, imageUrl: true, unit: true } } } },
       },
     });
     if (!order) throw new NotFoundException(`Order ${ref} not found`);
     return order;
+  }
+
+  /** Public, unauthenticated lookup for the "view order" link shared with the
+   * customer/vendor. Deliberately redacts contact PII (email, phone, full
+   * address) — the vendor already receives that via the WhatsApp/Instagram
+   * message itself, and there's no need to expose it on an unauthenticated
+   * page keyed off a token that could end up shared/forwarded. */
+  async findByPublicToken(token: string) {
+    const order = await this.db.order.findUnique({
+      where: { publicToken: token },
+      include: {
+        items: { include: { product: { select: { name: true, pattern: true, imageUrl: true, unit: true } } } },
+      },
+    });
+    if (!order) throw new NotFoundException('Order not found');
+    return {
+      ref: order.ref,
+      firstName: (order.custName || '').split(' ')[0] || 'there',
+      delivery: order.delivery,
+      subtotal: order.subtotal,
+      deliveryFee: order.deliveryFee,
+      total: order.total,
+      status: order.status,
+      createdAt: order.createdAt,
+      items: order.items.map((i: any) => ({
+        name: i.product.name,
+        pattern: i.product.pattern,
+        imageUrl: i.product.imageUrl,
+        unit: i.product.unit,
+        qty: i.qty,
+        unitPrice: i.unitPrice,
+      })),
+    };
   }
 
   async create(dto: CreateOrderDto): Promise<Order> {
