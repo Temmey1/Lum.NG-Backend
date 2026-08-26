@@ -89,14 +89,20 @@ export class R2StorageService {
   }
 
   private buildPublicUrl(key: string): string {
+    // Encode each path segment individually — encodeURIComponent(key) alone
+    // would also encode the folder-separator slashes (uploads/xyz.jpg becomes
+    // uploads%2Fxyz.jpg), and R2's edge does NOT decode %2F back into a real
+    // path separator when resolving the object, so the file 404s even though
+    // it's genuinely sitting there under the un-encoded key.
+    const encodedKey = key.split('/').map(encodeURIComponent).join('/');
     if (this.publicBaseUrl) {
       const base = this.publicBaseUrl.endsWith('/') ? this.publicBaseUrl.slice(0, -1) : this.publicBaseUrl;
-      return `${base}/${encodeURIComponent(key)}`;
+      return `${base}/${encodedKey}`;
     }
     if (this.accountId && this.bucket) {
-      return `https://${this.accountId}.r2.cloudflarestorage.com/${this.bucket}/${encodeURIComponent(key)}`;
+      return `https://${this.accountId}.r2.cloudflarestorage.com/${this.bucket}/${encodedKey}`;
     }
-    return `/uploads/${encodeURIComponent(key)}`;
+    return `/uploads/${encodedKey}`;
   }
 
   async uploadFile(
