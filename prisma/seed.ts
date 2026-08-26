@@ -49,9 +49,9 @@ const DEFAULT_PRODUCTS = [
 
 const DEFAULT_SETTINGS: Record<string, unknown> = {
   hero: { eyebrow:'Native. Authentic. Luxurious.', titleLine1:'Where Tradition', titleLine2:'Meets Craft', subtitle:'Premium Ankara · Guinea · Lace · Aso-oke · Adire', ctaPrimary:'Explore Collection', ctaSecondary:'Our Fabrics', fabricCards:[{label:'Ankara',pattern:'linear-gradient(135deg,#1a1a1a,#3d2b1f)'},{label:'Guinea',pattern:'linear-gradient(135deg,#0d0d0d,#1c3a1c)'},{label:'Lace',pattern:'linear-gradient(135deg,#1a1a2e,#16213e)'}] },
-  contact: { phone:'+2349074112695', email:'lumngfabrics@gmail.com', address:'Ilorin, Kwara State', storeAddress:'Ilorin, Kwara State.', hours:'Mon–Sat 8am–7pm' },
-  footer: { tagline:'Premium unisex fabric store in Ilorin, Kwara. Look classy to your taste.', copyright:'© 2025 LUM NG. All rights reserved.' },
-  seo: { siteTitle:'LUM NG — Unisex Fabric Store | Ilorin, Kwara', metaDescription:'LUM NG — premium unisex fabric store in Ilorin, Kwara. Lace, Ankara, Senator, Guinea, Bonnets, Alhaji Caps and more.' },
+  contact: { phone:'+2349074112695', email:'lumngfabrics@gmail.com', address:'Ilorin, Kwara State & Ibadan, Oyo State', storeAddress:'Ilorin, Kwara State & Ibadan, Oyo State.', hours:'Mon–Sat 8am–7pm' },
+  footer: { tagline:'Premium unisex fabric store — Ilorin, Kwara State & Ibadan, Oyo State. Look classy to your taste.', copyright:'© 2025 LUM NG. All rights reserved.' },
+  seo: { siteTitle:'LUM NG — Unisex Fabric Store | Ilorin, Kwara & Ibadan, Oyo', metaDescription:'LUM NG — premium unisex fabric store in Ilorin, Kwara State and Ibadan, Oyo State. Lace, Ankara, Senator, Guinea, Bonnets, Alhaji Caps and more.' },
 };
 
 async function main() {

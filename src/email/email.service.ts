@@ -166,7 +166,7 @@ export class EmailService {
         <!-- Footer -->
         <tr>
           <td style="padding:24px 40px;border-top:1px solid #2a2a2a;text-align:center;">
-            <p style="color:#444;font-size:12px;margin:0 0 6px;">LUM NG — Unisex Fabric Store, Ilorin, Kwara State</p>
+            <p style="color:#444;font-size:12px;margin:0 0 6px;">LUM NG — Unisex Fabric Store, Ilorin, Kwara State & Ibadan, Oyo State</p>
             <p style="color:#333;font-size:11px;margin:0;">
               Questions? Reply to this email or WhatsApp us at ${process.env.CONTACT_PHONE || '+2349074112695'}
             </p>
@@ -238,11 +238,11 @@ export class EmailService {
           </tr></tfoot>
         </table>
         <p style="color:#888;font-size:13px;margin:0;">
-          <strong style="color:#fff;">Delivery:</strong> ${delivery === 'PICKUP' ? 'Store Pickup — Ilorin, Kwara State' : `Home Delivery${address ? ` to ${address}` : ''}`}
+          <strong style="color:#fff;">Delivery:</strong> ${delivery === 'PICKUP' ? 'Store Pickup — Ilorin, Kwara State & Ibadan, Oyo State' : `Home Delivery${address ? ` to ${address}` : ''}`}
         </p>
       </td></tr>
       <tr><td style="padding:24px 40px;border-top:1px solid #2a2a2a;text-align:center;">
-        <p style="color:#444;font-size:12px;margin:0;">LUM NG — Unisex Fabric Store, Ilorin, Kwara State</p>
+        <p style="color:#444;font-size:12px;margin:0;">LUM NG — Unisex Fabric Store, Ilorin, Kwara State & Ibadan, Oyo State</p>
       </td></tr>
     </table>
   </td></tr>
