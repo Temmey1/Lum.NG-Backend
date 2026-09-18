@@ -2,7 +2,18 @@ import 'dotenv/config';
 import { Prisma, PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
+import { lookup } from 'dns';
 import * as bcrypt from 'bcryptjs';
+
+function forceIpv4Lookup(
+  hostname: string,
+  _options: any,
+  callback: (err: NodeJS.ErrnoException | null, address?: string, family?: number) => void,
+): void {
+  lookup(hostname, { family: 4 }, (err, address, family) => {
+    callback(err, address, family);
+  });
+}
 
 function normalizeDbUrlForPool(rawUrl: string): {
   url: string;
@@ -25,14 +36,21 @@ function normalizeDbUrlForPool(rawUrl: string): {
   };
 }
 
-const rawUrl = process.env.DATABASE_URL || '';
+const rawUrl = process.env.DIRECT_URL || process.env.DATABASE_URL || '';
+if (rawUrl === process.env.DATABASE_URL && process.env.DIRECT_URL === undefined) {
+  console.warn('[seed] ⚠ DIRECT_URL not set — falling back to DATABASE_URL. Seeding may fail on transaction pooler (port 6543).');
+}
 const { url: cleanUrl, ssl } = normalizeDbUrlForPool(rawUrl);
 
-const pool = new Pool({
+const poolConfig = {
   connectionString: cleanUrl,
   connectionTimeoutMillis: 15_000,
+  idleTimeoutMillis: 30_000,
   ssl,
-});
+  lookup: forceIpv4Lookup,
+} as ConstructorParameters<typeof Pool>[0];
+
+const pool = new Pool(poolConfig);
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 

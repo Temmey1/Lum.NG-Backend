@@ -26,6 +26,12 @@ export class ProductsController {
     private readonly storage: R2StorageService,
   ) {}
 
+  @Get('categories')
+  async findAllCategories() {
+    const categories = await this.products.findAllCategories();
+    return { categories };
+  }
+
   @Get()
   async findAll(@Query() query: Record<string, string>) {
     const list = await this.products.findAll(query);

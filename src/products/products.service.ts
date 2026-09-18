@@ -33,13 +33,28 @@ export class ProductsService {
     return product;
   }
 
+  private normalizeCategory(category?: string | null): string | undefined {
+    if (!category) return undefined;
+    const trimmed = String(category).trim();
+    if (!trimmed) return undefined;
+    const slug = trimmed
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+    return slug || trimmed.toLowerCase();
+  }
+
   async create(data: any): Promise<Product> {
-    return (this.prisma as any).product.create({ data });
+    const normalized = { ...data };
+    if (data.category !== undefined) normalized.category = this.normalizeCategory(data.category) ?? data.category;
+    return (this.prisma as any).product.create({ data: normalized });
   }
 
   async update(id: number, data: any): Promise<Product> {
     await this.findOne(id);
-    return (this.prisma as any).product.update({ where: { id }, data });
+    const normalized = { ...data };
+    if (data.category !== undefined) normalized.category = this.normalizeCategory(data.category) ?? data.category;
+    return (this.prisma as any).product.update({ where: { id }, data: normalized });
   }
 
   async remove(id: number): Promise<void> {
@@ -49,5 +64,30 @@ export class ProductsService {
 
   async setImage(id: number, imageUrl: string): Promise<Product> {
     return this.update(id, { imageUrl });
+  }
+
+  async findAllCategories(): Promise<{ value: string; label: string; count: number }[]> {
+    const all = await (this.prisma as any).product.findMany({
+      select: { category: true },
+    });
+    const counts = new Map<string, number>();
+    for (const p of all) {
+      const cat = String(p.category || 'uncategorized').trim() || 'uncategorized';
+      counts.set(cat, (counts.get(cat) || 0) + 1);
+    }
+    const slugToLabel = (slug: string): string => {
+      return slug
+        .split('-')
+        .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ')
+        .trim();
+    };
+    const result = Array.from(counts.entries()).map(([value, count]) => ({
+      value,
+      label: slugToLabel(value),
+      count,
+    }));
+    result.sort((a, b) => a.label.localeCompare(b.label));
+    return result;
   }
 }
