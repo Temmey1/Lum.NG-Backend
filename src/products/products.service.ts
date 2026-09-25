@@ -44,15 +44,34 @@ export class ProductsService {
     return slug || trimmed.toLowerCase();
   }
 
+  /** Keeps `images` (the real, multi-image source of truth) and the legacy
+   * single `imageUrl` field in sync, whichever one the caller actually sent.
+   * Anything still reading imageUrl (older cached admin/storefront bundles,
+   * order-item snapshots, etc.) keeps working without needing every app
+   * redeployed in lockstep. */
+  private syncImageFields(data: any) {
+    const out = { ...data };
+    if (Array.isArray(out.images)) {
+      out.images = out.images.filter((u: unknown) => typeof u === 'string' && u.trim());
+      out.imageUrl = out.images[0] ?? null;
+    } else if (out.imageUrl !== undefined && out.images === undefined) {
+      // Old-style single-image write — mirror it into images too so a
+      // product added before multi-image support still shows correctly
+      // anywhere that now reads `images`.
+      out.images = out.imageUrl ? [out.imageUrl] : [];
+    }
+    return out;
+  }
+
   async create(data: any): Promise<Product> {
-    const normalized = { ...data };
+    let normalized = this.syncImageFields({ ...data });
     if (data.category !== undefined) normalized.category = this.normalizeCategory(data.category) ?? data.category;
     return (this.prisma as any).product.create({ data: normalized });
   }
 
   async update(id: number, data: any): Promise<Product> {
     await this.findOne(id);
-    const normalized = { ...data };
+    let normalized = this.syncImageFields({ ...data });
     if (data.category !== undefined) normalized.category = this.normalizeCategory(data.category) ?? data.category;
     return (this.prisma as any).product.update({ where: { id }, data: normalized });
   }
@@ -63,7 +82,11 @@ export class ProductsService {
   }
 
   async setImage(id: number, imageUrl: string): Promise<Product> {
-    return this.update(id, { imageUrl });
+    // This endpoint uploads/replaces ONE image (e.g. a quick single-image
+    // edit flow) — treat it as replacing the whole gallery with just that
+    // image, since that's what "set the image" means coming from a
+    // single-image caller.
+    return this.update(id, { images: imageUrl ? [imageUrl] : [] });
   }
 
   async findAllCategories(): Promise<{ value: string; label: string; count: number }[]> {

@@ -30,6 +30,7 @@ export interface Product {
   badge       : string | null;
   pattern     : string;
   imageUrl    : string | null;
+  images      : string[];
   inStock     : boolean;
   featured    : boolean;
   tags        : string[];

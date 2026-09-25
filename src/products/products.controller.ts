@@ -65,8 +65,9 @@ export class ProductsController {
   @UseGuards(JwtAuthGuard)
   async remove(@Param('id', ParseIntPipe) id: number) {
     const existing = await this.products.findOne(id).catch(() => null);
-    if (existing?.imageUrl) {
-      const r2Key = this.extractR2Key(existing.imageUrl);
+    const urls = (existing as any)?.images?.length ? (existing as any).images : (existing?.imageUrl ? [existing.imageUrl] : []);
+    for (const url of urls) {
+      const r2Key = this.extractR2Key(url);
       if (r2Key) await this.storage.deleteFile(r2Key).catch(() => {});
     }
     await this.products.remove(id);

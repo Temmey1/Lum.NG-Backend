@@ -23,7 +23,11 @@ model Product {
   bulkMin     Int?
   badge       String?
   pattern     String   @default("linear-gradient(135deg,#1a1a1a,#333)")
+  // Kept for backward compatibility with anything still reading a single
+  // image — always kept in sync with images[0] by the service layer.
+  // `images` is the actual source of truth going forward.
   imageUrl    String?
+  images      String[] @default([])
   inStock     Boolean  @default(true)
   featured    Boolean  @default(false)
   tags        String[] @default([])
