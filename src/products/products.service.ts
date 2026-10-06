@@ -49,7 +49,7 @@ export class ProductsService {
    * Anything still reading imageUrl (older cached admin/storefront bundles,
    * order-item snapshots, etc.) keeps working without needing every app
    * redeployed in lockstep. */
-  private static readonly MAX_IMAGES = 40;
+  private static readonly MAX_IMAGES = 100;
 
   private syncImageFields(data: any) {
     const out = { ...data };
