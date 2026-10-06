@@ -30,7 +30,6 @@ export interface Product {
   badge       : string | null;
   pattern     : string;
   imageUrl    : string | null;
-  images      : string[];
   inStock     : boolean;
   featured    : boolean;
   tags        : string[];
@@ -57,11 +56,12 @@ export interface Order {
 }
 
 export interface OrderItem {
-  id        : number;
-  orderId   : string;
-  productId : number;
-  qty       : number;
-  unitPrice : number;
+  id            : number;
+  orderId       : string;
+  productId     : number;
+  qty           : number;
+  unitPrice     : number;
+  selectedImage : string | null;
 }
 
 export interface Admin {

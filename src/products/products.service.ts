@@ -49,10 +49,14 @@ export class ProductsService {
    * Anything still reading imageUrl (older cached admin/storefront bundles,
    * order-item snapshots, etc.) keeps working without needing every app
    * redeployed in lockstep. */
+  private static readonly MAX_IMAGES = 40;
+
   private syncImageFields(data: any) {
     const out = { ...data };
     if (Array.isArray(out.images)) {
-      out.images = out.images.filter((u: unknown) => typeof u === 'string' && u.trim());
+      out.images = out.images
+        .filter((u: unknown) => typeof u === 'string' && u.trim())
+        .slice(0, ProductsService.MAX_IMAGES);
       out.imageUrl = out.images[0] ?? null;
     } else if (out.imageUrl !== undefined && out.images === undefined) {
       // Old-style single-image write — mirror it into images too so a

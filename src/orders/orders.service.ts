@@ -8,7 +8,7 @@ export interface CreateOrderDto {
     name: string; email: string; phone: string;
     address?: string; state?: string; landmark?: string; pickupDate?: string;
   };
-  items: { id: number; qty: number }[];
+  items: { id: number; qty: number; selectedImage?: string | null }[];
   delivery: 'delivery' | 'pickup';
   subtotal: number;
   deliveryFee?: number;
@@ -72,7 +72,7 @@ export class OrdersService {
       items: order.items.map((i: any) => ({
         name: i.product.name,
         pattern: i.product.pattern,
-        imageUrl: i.product.imageUrl,
+        imageUrl: i.selectedImage || i.product.imageUrl,
         unit: i.product.unit,
         qty: i.qty,
         unitPrice: i.unitPrice,
@@ -118,7 +118,7 @@ export class OrdersService {
             const unitPrice = (product.bulkMin && item.qty >= product.bulkMin && product.bulkPrice)
               ? product.bulkPrice
               : product.price;
-            return { productId: item.id, qty: item.qty, unitPrice };
+            return { productId: item.id, qty: item.qty, unitPrice, selectedImage: item.selectedImage || null };
           }),
         },
       },

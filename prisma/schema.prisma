@@ -23,11 +23,7 @@ model Product {
   bulkMin     Int?
   badge       String?
   pattern     String   @default("linear-gradient(135deg,#1a1a1a,#333)")
-  // Kept for backward compatibility with anything still reading a single
-  // image — always kept in sync with images[0] by the service layer.
-  // `images` is the actual source of truth going forward.
   imageUrl    String?
-  images      String[] @default([])
   inStock     Boolean  @default(true)
   featured    Boolean  @default(false)
   tags        String[] @default([])
@@ -71,11 +67,17 @@ model Order {
 }
 
 model OrderItem {
-  id        Int     @id @default(autoincrement())
-  orderId   String
-  productId Int
-  qty       Int
-  unitPrice Float   // price at time of order
+  id            Int     @id @default(autoincrement())
+  orderId       String
+  productId     Int
+  qty           Int
+  unitPrice     Float   // price at time of order
+  // The specific gallery image the customer picked for this line item (one
+  // of the product's `images[]`), carried through from cart → checkout so
+  // the vendor sees exactly the fabric photo the customer meant, even if the
+  // product's primary/default image is different or changes later.
+  // Nullable: falls back to the product's default image when not set.
+  selectedImage String?
 
   order     Order   @relation(fields: [orderId], references: [ref], onDelete: Cascade)
   product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
